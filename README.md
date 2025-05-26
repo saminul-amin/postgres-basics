@@ -1,303 +1,142 @@
-# B5A2
+# PostgreSQL Basics
 
-# 🐆 Wildlife Conservation Monitoring Assignment
+## 1. What is PostgreSQL?
 
----
+PostgreSQL হলো একটি ডেটাবেজ সফটওয়্যার, যেটা দিয়ে বিভিন্ন তথ্য সংরক্ষণ, খোঁজা, পরিবর্তন ও মুছে ফেলা যায়।
 
-### **🌿 The Ranger and the Rare Animal**
+এটা দিয়ে অনেক ধরনের তথ্য রাখা যায় — যেমন ছাত্রদের নাম, পরীক্ষার নম্বর, পণ্যের দাম, অর্ডারের তালিকা ইত্যাদি।
 
-Meera is a forest ranger who protects wildlife in a nature reserve. She’s searching for the rare **Shadow Leopard** , which hasn’t been seen in months. To help track sightings and share data with scientists, she uses a simple database with three tables: **`rangers`**, **`species`**, and **`sightings`**. These help her log observations, learn about endangered animals, and find clues about rare animals like the Shadow Leopard might be hiding.
+PostgreSQL ব্যবহার করা হয় যখন:
 
----
+- বড় পরিমাণে তথ্য গুছিয়ে রাখতে হয়
 
-## **📜 Assignment Objective**
+- তথ্যের উপর বিভিন্ন প্রশ্ন করা লাগে (যেমন, “যে ছাত্রদের নাম ‘র’ দিয়ে শুরু হয়”)
 
-This assignment focuses on **PostgreSQL database operations** using a real-world scenario in **wildlife conservation monitoring**. You will create and manage three tables (`rangers`, `species`, `sightings`), insert sample data, and perform essential SQL queries including:
+- তথ্য নিরাপদভাবে রাখার দরকার হয়
 
-- **CRUD operations**
-- **Constraints (PK, FK, CHECK, DEFAULT)**
-- **JOINs**
-- **Aggregations (`COUNT`, `MAX`, etc.)**
-- **Filtering (`WHERE`, `HAVING`)**
-- **Data manipulation (`UPDATE`, `DELETE`) etc**
-
-This assignment reinforces your understanding of relational databases while engaging with an environmental use case.
-
----
-
-## **📂 Database Setup**
-
-1️⃣ **Install PostgreSQL** on your system if not already installed.
-
-2️⃣ Open **pgAdmin** or your preferred PostgreSQL terminal.
-
-3️⃣ **Create a new database** named `"conservation_db"` or any appropriate name.
-
-4️⃣ **Connect** to the newly created database.
-
-5️⃣ Write PostgreSQL queries to solve given problems.
-
-## **📂 Table Details**
-
----
-
-## 🧱 The 3 Main Tables `Meera` Uses:
-```markdown
-| Table Name  | What It Stores                                                                |
-| ----------- | ----------------------------------------------------------------------------- |
-| `rangers`   | Information about rangers like Meera (name, contact, zone)                    |
-| `species`   | Info about different animals (name, scientific name, how endangered they are) |
-| `sightings` | Records of when and where each animal was seen                                |
+```sql
+SELECT * FROM students;
 ```
 
-### 1️⃣ `rangers`
+&rarr; এতে সব ছাত্রের তথ্য দেখা যায়।
 
-```markdown
-| Field Name  | Description               |
-| ----------- | ------------------------- |
-| `ranger_id` | Unique ID for each ranger |
-| `name`      | Full name of the ranger   |
-| `region`    | Area they patrol          |
-```
----
 
-### 2️⃣ `species`
+## 2. What is the purpose of a database schema in PostgreSQL?
 
-```markdown
-| Field Name            | Description                            |
-| --------------------- | -------------------------------------- |
-| `species_id`          | Unique ID for each species             |
-| `common_name`         | Common name (e.g., "Shadow Leopard")   |
-| `scientific_name`     | Scientific name                        |
-| `discovery_date`      | When the species was first recorded    |
-| `conservation_status` | Status like "Endangered", "Vulnerable" |
-```
-> ✅ discovery_date helps track when a species was officially identified.
-> 
+Schema হলো ডেটাবেজের ভেতরে একটা আলাদা আলাদা ঘর বা ভাগ, যেটার ভেতরে টেবিল, ভিউ, ফাংশন, ইত্যাদি রাখা হয়।
 
----
+যেভাবে কম্পিউটারে অনেক ফোল্ডার থাকে, আর ফোল্ডারের ভেতরে ফাইল — ঠিক তেমনই একটা PostgreSQL ডেটাবেজে একাধিক Schema থাকতে পারে।
 
-### 3️⃣ `sightings`
+Schema ব্যবহারের কিছু সহজ সরল সিম্পল কারণ হচ্ছেঃ
+- বড় প্রজেক্টে আলাদা আলাদা অংশ আলাদা Schema-তে রাখা যায়।
 
-```markdown
-| Field Name      | Description                                |
-| --------------- | ------------------------------------------ |
-| `sighting_id`   | Unique ID for each sighting                |
-| `ranger_id`     | Who made the sighting (links to `rangers`) |
-| `species_id`    | Which animal was seen (links to `species`) |
-| `sighting_time` | Date and time of the sighting              |
-| `location`      | Where it was seen                          |
-| `notes`         | Additional observations (optional)         |
+- একই নামে একাধিক টেবিল রাখা সম্ভব (যেহেতু তারা ভিন্ন Schema-তে)
+
+- ডেটাবেজ ম্যানেজমেন্ট অনেক সহজ হয়ে যায়।
+
+```sql
+CREATE SCHEMA school;
 ```
 
-> ✅ sighting_time tracks when an animal was seen — very useful for monitoring wildlife activity.
-> 
+&rarr; এতে একটি নতুন Schema তৈরি হবে যার নাম `school`
 
----
-
-## 🔗 Relationships Between Tables
-
-```markdown
-| Relationship           | Description                                       |
-| ---------------------- | ------------------------------------------------- |
-| `sightings`→ `rangers` | Each sighting is linked to the ranger who made it |
-| `sightings`→ `species` | Each sighting is linked to a specific species     |
+```sql
+CREATE TABLE school.students (
+  id SERIAL PRIMARY KEY,
+  name TEXT
+);
 ```
----
+&rarr; এখানে `school` নামের Schema-তে `students` নামের টেবিল তৈরি করা হয়েছে।
 
-## **📂 Sample Data**
 
-### **1️⃣ `rangers` Table**
 
-```markdown
-| ranger_id | name             | region         |
-|-----------|------------------|--------------- |
-| 1         | Alice Green      | Northern Hills |
-| 2         | Bob White        | River Delta    |
-| 3         | Carol King       | Mountain Range |
+## 3. Explain the Primary Key and Foreign Key concepts in PostgreSQL.
 
-```
+প্রাইমারি কি এর কিছু বৈশিষ্ট্য নিম্নে দেয়া হলঃ
+- এটি হলো একটি ইউনিক পরিচয়।
 
-### **2️⃣ `species` Table**
+- প্রতিটি রেকর্ডকে আলাদা করে চেনানোর জন্য ব্যবহার করা হয়।
 
-```markdown
-| species_id | common_name       | scientific_name         | discovery_date | conservation_status |
-|------------|-------------------|-------------------------|----------------|---------------------|
-| 1          | Snow Leopard      | Panthera uncia          | 1775-01-01     | Endangered          |
-| 2          | Bengal Tiger      | Panthera tigris tigris  | 1758-01-01     | Endangered          |
-| 3          | Red Panda         | Ailurus fulgens         | 1825-01-01     | Vulnerable          |
-| 4          | Asiatic Elephant  | Elephas maximus indicus | 1758-01-01     | Endangered          |
+- এটা সেই কলাম যা কখনোই খালি (NULL) হয় না এবং ডুপ্লিকেট হয় না।
 
+যেমন বলা যায়, `students` টেবিলে যদি `id` কলাম থাকে, তাহলে সেটি Primary Key হতে পারে।
+```sql
+CREATE TABLE students (
+  id SERIAL PRIMARY KEY,
+  name TEXT
+);
 ```
 
-### **3️⃣ `sightings` Table**
+ফরেন কি এর বৈশিষ্ট্যসমূহ নিম্নরূপঃ
+- এটি হলো এমন একটি কলাম যেটা অন্য টেবিলের Primary Key এর সাথে সম্পর্কিত।
 
-```markdown
-| sighting_id | species_id | ranger_id | location          | sighting_time        | notes                      |
-|-------------|------------|-----------|-------------------|----------------------|----------------------------|
-| 1           | 1          | 1         | Peak Ridge        | 2024-05-10 07:45:00  | Camera trap image captured |
-| 2           | 2          | 2         | Bankwood Area     | 2024-05-12 16:20:00  | Juvenile seen              |
-| 3           | 3          | 3         | Bamboo Grove East | 2024-05-15 09:10:00  | Feeding observed           |
-| 4           | 1          | 2         | Snowfall Pass     | 2024-05-18 18:30:00  | (NULL)                     |
+- এইভাবে দুইটি টেবিলের মধ্যে সম্পর্ক (Relationship) তৈরি করা যায়।
 
+ধরা যাকঃ
+```sql
+CREATE TABLE results (
+  id SERIAL PRIMARY KEY,
+  student_id INT REFERENCES students(id),
+  marks INT
+);
 ```
 
----
+&rarr; এখানে `student_id` হলো Foreign Key, যেটি `students` টেবিলের `id` এর সাথে যুক্ত।
 
-## **📂 PostgreSQL Problems & Sample Outputs → 50 Marks**
+এভাবে ডেটার মধ্যে সম্পর্ক তৈরি করে গুছিয়ে কাজ করা যায়।
 
-1️⃣ **Register a new ranger with provided data with name = 'Derek Fox' and region = 'Coastal Plains'**
 
-**Sample Output:**
+## 4. What is the difference between the `VARCHAR` and `CHAR` data types?
 
-```markdown
-AffectedRows : 1
-(No output needed - this is an INSERT operation)
+`VARCHAR` এবং `CHAR` — দুটোই PostgreSQL (বা SQL)-এ text বা character data রাখার জন্য ব্যবহৃত ডেটা টাইপ। তবে তারা ডেটা স্টোর করার পদ্ধতি ও স্পেস ম্যানেজমেন্টে ভিন্নভাবে কাজ করে।
+
+1. `CHAR(n)` - Fixed Length Character
+`CHAR(n)` মানে হলো "Fixed Length", অর্থাৎ যত অক্ষরই (মানে character) লেখা হোক না কেন, PostgreSQL ওই নির্দিষ্ট সংখ্যক জায়গা-ই ঠিক রাখবে।
+
+```sql
+CREATE TABLE users (
+  code CHAR(5)
+);
 ```
 
-2️⃣ **Count unique species ever sighted.**
+&rarr;  এখানে `code` কলামে সর্বদা ৫টা অক্ষরের জায়গা সংরক্ষিত থাকবে।
 
-**Sample Output:**
+অর্থাৎ, `CHAR` ডেটা টাইপ স্থির দৈর্ঘ্যের জন্য ভালো, যেমন ZIP কোড, পুরাতন ফর্ম কোড, ফোন এক্সটেনশন ইত্যাদি যেখানে ডাটা সবসময় নির্দিষ্ট দৈর্ঘ্যের হয়।
 
-```markdown
-| unique_species_count |
-| ---------------------|
-| 3                    |
+2. `VARCHAR(n)` — Variable Length Character
+`VARCHAR(n)` মানে হলো "Variable Length", অর্থাৎ ডেটা যতটুকু দরকার, ততটুকুই জায়গা নিবে। তবে সর্বোচ্চ `n` সংখ্যক অক্ষর রাখা যাবে। এর বেশি দিলে ঐগুলা কেটে দিবে।
+
+```sql
+CREATE TABLE users (
+  name VARCHAR(50)
+);
 ```
+&rarr;  এখানে `name` কলামে কেউ চাইলে ৫ অক্ষরের নাম দিতে পারে, আবার ৪৫ অক্ষরের নামও দিতে পারে। PostgreSQL ঠিক যতটা দরকার, ততটাই জায়গা ব্যবহার করবে।
 
-3️⃣ **Find all sightings where the location includes "Pass".**
+অর্থাৎ, `VARCHAR` ডেটা টাইপ বিভিন্ন দৈর্ঘ্যের ডেটা রাখার জন্য ভালো, যেমন নাম, ঠিকানা, মেসেজ ইত্যাদি।
 
-**Sample Output:**
 
-```markdown
-| sighting_id | species_id | ranger_id | location      | sighting_time       | notes  |
-| ------------|------------|-----------|---------------|---------------------|--------|
-| 4           | 1          | 2         | Snowfall Pass | 2024-05-18 18:30:00 | (NULL) |
+## 6. What are the `LIMIT` and `OFFSET` clauses used for?
+
+লিমিট জিনিসটা খুবই সহজ। মূলত নাম শুনেই বুঝা যায় এটা কি জিনিস আর এটার কাজই বা কি। এরপরও প্রফেশনালি বলতে গেলে `LIMIT` হচ্ছে এমন একটি ক্লজ যা বলে দেয় কতগুলো রেকর্ড বা সারি দেখানো হবে অর্থাৎ কতগুলো ডেটা আনতে হবে। 
+
+ধরা যাক, 
+একটা টেবিলে ১০০ জন ছাত্রের তথ্য আছে।
+কিন্তু এর মধ্যে থেকে আমি শুধু ৫ জনের তথ্য জানতে চাই।
+সেক্ষেত্রে কোড হবেঃ
+```sql
+SELECT * FROM students
+LIMIT 5;
 ```
+&rarr; এতে শুধু প্রথম ৫ জন ছাত্রের তথ্য দেখাবে। বাকিগুলা দেখাবে না।
 
-4️⃣ **List each ranger's name and their total number of sightings.**
+আচ্ছা এবার `OFFSET` এর ব্যাপারে আসি। OFFSET হচ্ছে SQL-এর এমন একটা ক্লজ যা বলে দেয় বা নির্দিষ্ট করে দেয় যে শুরুর দিকে কতগুলো রেকর্ড স্কিপ করে তারপর দেখানো হবে। 
 
-**Sample Output:**
-
-```markdown
-| name        | total_sightings |
-|-------------|-----------------|
-| Alice Green | 1               |
-| Bob White   | 2               |
-| Carol King  | 1               |
-
+ধরা যাক, আবারও আমার টেবিলে ১০০ জন ছাত্র আছে।
+আর এবার আমি ৬ থেকে ১০ নম্বর পর্যন্ত ছাত্রদের দেখতে চাই।
+তো সেক্ষেত্রে কোড হবেঃ 
+```sql
+SELECT * FROM students
+LIMIT 5 OFFSET 5;
 ```
-
-5️⃣ **List species that have never been sighted.**
-
-**Sample Output:**
-
-```markdown
-| common_name      |
-|------------------|
-| Asiatic Elephant |
-
-```
-
-6️⃣ **Show the most recent 2 sightings.**
-
-**Sample Output:**
-
-```markdown
-| common_name   | sighting_time        | name        |
-|---------------|----------------------|-------------|
-| Snow Leopard  | 2024-05-18 18:30:00  | Bob White   |
-| Red Panda     | 2024-05-15 09:10:00  | Carol King  |
-
-```
-
-7️⃣ **Update all species discovered before year 1800 to have status 'Historic'.**
-
-**Sample Output:**
-
-```markdown
-AffectedRows : 3
-(No output needed - this is an UPDATE operation)
-```
-
-8️⃣ **Label each sighting's time of day as 'Morning', 'Afternoon', or 'Evening'.**
-
-- Morning: before 12 PM
-- Afternoon: 12 PM–5 PM
-- Evening: after 5 PM
-
-**Sample Output:**
-
-```markdown
-| sighting_id | time_of_day |
-|-------------|-------------|
-| 1           | Morning     |
-| 2           | Afternoon   |
-| 3           | Morning     |
-| 4           | Evening     |
-
-```
-
-9️⃣ **Delete rangers who have never sighted any species**
-
-**Sample Output:**
-
-```markdown
-AffectedRows : 1
-(No output needed - this is a DELETE operation)
-```
-
-
----
-
-## **📂 Submission Instructions**
-
-1️⃣ **Prepare a single SQL file** containing:
-- SQL code for table creation, sample data insertion, and all queries.
-- SQL queries for all problems, each preceded by a comment (`- Problem X`).
-  
-2️⃣ **Verify** that all queries run without errors.
-
-3️⃣ Save your file as "PostgreSQL_Assignment.sql" or another appropriate name.
-
-🔹 Submit only the **GitHub repository link** containing your solution file. GitHub repository should be public.
-
----
-
-
-## **📂 Bonus Section (Answer Any 5 Questions on readme.md in Bangla) → 10 Marks**
-
-
-1. What is PostgreSQL?
-2. What is the purpose of a database schema in PostgreSQL?
-3. Explain the **Primary Key** and **Foreign Key** concepts in PostgreSQL.
-4. What is the difference between the `VARCHAR` and `CHAR` data types?
-5. Explain the purpose of the `WHERE` clause in a `SELECT` statement.
-6. What are the `LIMIT` and `OFFSET` clauses used for?
-7. How can you modify data using `UPDATE` statements?
-8. What is the significance of the `JOIN` operation, and how does it work in PostgreSQL?
-9. Explain the `GROUP BY` clause and its role in aggregation operations.
-10. How can you calculate aggregate functions like `COUNT()`, `SUM()`, and `AVG()` in PostgreSQL?
-
-💡 Pro Tip: Don't be short and concise in your answers; explain the idea behind each question and provide in-depth analysis with relevant examples.
----
-
-## **⏳ Deadline & Marks Distribution**
-
-| Date | Marks | Deadline Time |
-| --- | --- | --- |
-| **26 May, 2025** | **60 Marks** | Until **11:59 PM** |
-| **27 May, 2025** | **50 Marks** | Until **11:59 PM** |
-| **After 27 May, 2025** | **30 Marks** | Until **11:59 PM** |
-
----
-
-## **🚀 Important Notice**
-
-Participation in this assignment is **mandatory** for all students. It builds foundational skills in PostgreSQL, which will be critical for future topics like **Prisma ORM** and **full-stack development**.
-
-Approach this task with dedication, precision, and a commitment to excellence.
-
-Plagiarism will not be tolerated. Please make sure that the code you submit is your own. Any instance of plagiarism will result in a score of 0. Additionally, if any AI-generated content or ChatGPT-generated responses are detected, the score will also be 0.
-
-**Best of luck!** 💡🔥🌿
+&rarr; এখানে আমি ৬, ৭, ৮, ৯ এবং ১০ তম ছাত্রের তথ্য দেখতে পাব। 
